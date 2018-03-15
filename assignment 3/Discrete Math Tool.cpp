@@ -1,106 +1,215 @@
 #include <iostream>
 #include <fstream>
-#include <algorithm>
 
 using namespace std;
 
-void get_set(int arr[] , int &c);
-void print_set(const int arr[] , int c);
-void get_path();
-void create_file(int arr[] , int c);
-void load_file(int arr[], int& c);
-void prepare_set(int[],int&);
+void get_set(int[], int&);
+void print_set(const int[], int);
+void create_file(int[], int);
+void load_file(int[], int&);
+void prepare_set(int[], int&);
+void Disjoint(int set1[] , int set2[] , int c1 , int c2);
+void Set_equality(int set1[] , int set2[] , int c1 , int c2);
+void proper_subset(int set1[] , int set2[] , int c1 , int c2);
 
 int main()
 {
-    int choose ;
-    int arr[10000];
-    int c = 0;
-    cout << "1 >> Create File" << endl;
-    cout << "2 >> Load File" << endl;
-    cin >> choose;
-    cin.ignore(INT_MAX, '\n');
-    if(choose == 1){
-        get_set(arr, c);
-        prepare_set(arr,c);
-        //create_file(arr,c);
+	int choose;
+	int set1[10000] , set2[10000];
+	int c1 = 0 , c2 = 0;
+	cout << "Ahlan ya user ya Habibi" << endl;
+	cout << "what do you want to do today" << endl;
+    while(true){
+        cout << "\n1 >> Create File" << endl;
+        cout << "2 >> Load File" << endl;
+        cout << "3 >> Display data sets" << endl;
+        cout << "10 >> Check if A and B are disjoint" << endl;
+        cout << "11 >> Check if A and B are equal" << endl;
+        cout << "12 >> Check if a set is a proper subset of other" << endl;
+        cin >> choose;
+        cin.ignore(INT_MAX, '\n');
         cout << endl;
-        print_set(arr,c);
-    }
-    else if (choose == 2){
-        load_file(arr,c);
-        prepare_set(arr,c);
-        print_set(arr,c);
-    }
-    /*get_set(arr, c);
-    cout << endl;
-    print_set(arr,c);*/
-}
-void get_set(int arr[] , int &c){
-    c = 0;
-    while (true){
-        int x;
-        cin >> arr[c++];
-        if (cin.get()=='\n')
-            break;
-    }
-}
-
-void print_set(const int arr[] , int c){
-    cout << "{";
-    for(int i = 0 ; i < c ; ++i){
-        cout << arr[i];
-        if (i != c - 1)
-             cout << ", ";
-        else
-            cout << "}" << endl;
-    }
-}
-
-void get_path(char path[]){
-    cout << "Enter path : " ;
-    cin.getline(path , 100 , '\n');
-    //----------------: unallowed                / \ : * ? " < > |
-}
-
-void create_file(int arr[] , int c){
-    char path[100];
-    get_path(path);
-    ofstream file(path);
-
-    for (int i = 0; i < c; ++i){
-        file << arr[i] << " ";
-    }
-    cout << "File created successfully! ^_^" << endl;
-}
-
-void load_file(int arr[], int& c){
-    char path[100];
-    get_path(path);
-    ifstream file(path);
-
-    int current;
-    c = 0;
-    while (file >> current && !file.eof()){
-        arr[c++] = current;
-    }
-    cout << "File loaded successfully! ^_^" << endl;
-}
-
-void prepare_set(int arr[], int& c){
-    sort(arr,arr+c);
-
-    int memory = arr[0];
-    for (int i = 1; i < c; ){
-        if (arr[i] != memory){
-            memory = arr[i];
-            ++i;
+        if(choose == 13)
+            return 0;
+        switch(choose){
+            case 1 :
+                cout << "Enter the First Set :" << endl;
+                get_set(set1 , c1);
+                prepare_set(set1 , c1);
+                create_file(set1 , c1);
+                cout << "Enter the Second Set :" << endl;
+                get_set(set2 , c2);
+                prepare_set(set2 , c2);
+                create_file(set2 , c2);
+                break;
+            case 2 :
+                load_file(set1 , c1);
+                load_file(set2 , c2);
+                break;
+            case 3 :
+                print_set(set1 , c1);
+                print_set(set1 , c2);
+                break;
+            case 10 :
+                Disjoint(set1 , set2 , c1 ,c2);
+                break;
+            case 11 :
+                Set_equality(set1 , set2 , c1 , c2);
+                break;
+            case 12 :
+                proper_subset(set1 , set2 , c1 , c2);
+                break;
+            default :
+                cout << "Invalid Input !!" << endl;
         }
-        else{
-            for (int j = i; j < c; ++j){
-                arr[j] = arr[j+1];
+    }
+}
+void get_set(int set[], int &c) {
+	c = 0;
+	while (true) {
+		int x;
+		cin >> set[c++];
+		if (cin.get() == '\n')
+			break;
+	}
+}
+
+void print_set(const int set[], int c) {
+	cout << "{";
+	for (int i = 0; i < c; ++i) {
+		cout << set[i];
+		if (i != c - 1)
+			cout << ", ";
+		else
+			cout << "}" << endl;
+	}
+}
+
+void get_path(char path[]) {
+	cout << "Enter path : ";
+	cin.getline(path, 100, '\n');
+	//----------------: unallowed                / \ : * ? " < > |
+}
+
+void create_file(int set[], int c) {
+	ofstream file;
+	while (true) {
+		char path[100];
+		cout << "Enter the path of the file to save: ";
+		cin.getline(path, 100, '\n');
+		file.open(path);
+		if (!file)
+			cout << "Couldn't access the file.\n";
+		else
+			break;
+	}
+
+	for (int i = 0; i < c; ++i) {
+		file << set[i] << " ";
+	}
+	cout << "File created successfully! ^_^" << endl;
+}
+
+void load_file(int set[], int& c) {
+	ifstream file;
+	while (true) {
+		char path[100];
+		cout << "Enter the path of the file to load: ";
+		cin.getline(path, 100, '\n');
+		file.open(path);
+		if (!file)
+			cout << "Couldn't access the file.\n";
+		else
+			break;
+	}
+
+	int current;
+	c = 0;
+	while (file >> current && !file.eof()) {
+		set[c++] = current;
+	}
+	cout << "File loaded successfully! ^_^" << endl;
+}
+
+void prepare_set(int set[], int& c) {
+	for (int i = 0; i < c - 1; i++) {
+		int min = i;
+
+		//find the index of the minimum value in the unsorted list, remove duplicates.
+		for (int j = i + 1; j < c; ++j) {
+			if (set[min]>set[j])
+				min = j;
+			else if (set[min] == set[j]) {
+				//remove item by swapping it with the end of the list
+				//look through the current j again.
+				int temp = set[j];
+				set[j] = set[--c];
+				set[c] = temp;
+				--j;
+			}
+		}
+
+		int temp = set[i];
+		set[i] = set[min];
+		set[min] = temp;			//swap
+	}
+}
+
+void Disjoint(int set1[] , int set2[] , int c1 , int c2){
+    int found = 0;
+    for(int i = 0 ; i < c1 ; ++i){
+        for(int j = 0 ; j < c2 ; ++j){
+            if(set1[i] == set2[j]){
+                found = 1;
+                cout << set1[i] << " " ;
             }
-            --c;
         }
+    }
+    if(found == 0)
+        cout << "The Sets are Disjoint" << endl;
+    else
+        cout << endl <<"The Sets aren't Disjoint!" << endl;
+}
+
+void Set_equality(int set1[] , int set2[] , int c1 , int c2){
+    int found_element = 0;
+    if(c1 != c2)
+        cout << "The Sets aren't equal to each other!" << endl;
+    else{
+        for(int i = 0 ; i < c1 ; ++i){
+            if(set1[i] != set2[i]){
+                found_element = 1;
+                cout << "The Sets aren't equal to each other!" << endl;
+                break;
+            }
+        }
+        if(found_element == 0)
+            cout << "The Sets are equal ^_^" << endl;
+    }
+}
+
+void proper_subset(int set1[] , int set2[] , int c1 , int c2){
+    if(c1 == c2)
+        cout << "No subset!" << endl;
+    else {
+        int sub = 1;
+        if(c2 < c1){
+            c1 = c2;
+            sub = 2;
+        }
+        else
+            cout << "No Subset!" << endl;
+
+        for (int i = 0 ; i < c1 ; ++i){
+            if(set1[i] != set2[i]){
+                sub = 0;
+                cout << "No subset!" << endl;
+                break;
+            }
+        }
+        if(sub == 1)
+            cout << "the First Set is Proper subset from the Second Set" << endl;
+        else if (sub == 2)
+            cout << "the Second Set is Proper subset from the First Set" << endl;
     }
 }
